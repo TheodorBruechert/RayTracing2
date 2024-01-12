@@ -20,7 +20,6 @@ using milliseconds = std::chrono::milliseconds;
 
 class Renderer {
 private:
-    const std::string m_imgPath;
     uint32_t* m_imgData;
     float m_aspectRatio;
     std::size_t m_width;
@@ -30,12 +29,12 @@ private:
     Sphere m_sphere;
 
     //returns a color in RGBA
-    uint32_t PerPixel(const std::size_t& x, const std::size_t& y, const Scene& scene, const Sphere& sphere);
+    uint32_t PerPixel(const std::size_t& x, const std::size_t& y);
+    uint32_t ConvertFloatRGBAToARGB(const glm::vec4& color);
+
 public:
-    Renderer(std::string imgPath, std::size_t width, std::size_t height);
+    Renderer( std::size_t width, std::size_t height);
     ~Renderer();
 
     py::array_t<uint32_t> Render();
-    uint32_t ConvertFloatRGBAToARGB(const glm::vec4& color);
-    void SaveImg();
 };

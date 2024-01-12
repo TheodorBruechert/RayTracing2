@@ -13,7 +13,7 @@ PYBIND11_MODULE(rendererModule, m) {
     m.doc() = "Python bindings for Renderer";
 
     py::class_<Renderer>(m, "Renderer")
-        .def(py::init<std::string, std::size_t, std::size_t>())
+        .def(py::init< std::size_t, std::size_t>())
         .def("Render", &Renderer::Render);
 
 }

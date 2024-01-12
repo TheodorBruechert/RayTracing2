@@ -1,7 +1,7 @@
 import typing
 from typing import Any
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QTimer
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap, QImage
@@ -12,6 +12,9 @@ import subprocess
 
 from rendererModule import Renderer
 
+
+
+
 class Timer(object):
     def __init__(self) -> None:
         self.last_time_called = time.time()
@@ -21,15 +24,10 @@ class Timer(object):
         return elapsed_time
 
 class Window(QMainWindow):
-    def __init__(self, coupler) -> None:
+    def __init__(self,) -> None:
         super().__init__()
-        self.renderer = Renderer("resources/image.png", 1080, 800)
-        self.img_array = self.renderer.Render()
 
-        self.coupler = coupler
-        self.img_path = self.coupler.img_path
         self.setWindowTitle("RayTracer")
-        
 
         #create main context
         self.central_widget = QWidget()
@@ -43,10 +41,8 @@ class Window(QMainWindow):
         #add the image container
         self.imgContainer = QLabel(self)
         self.main_layout.addWidget(self.imgContainer)
-        self.load_image()
-
-        #add the right colmun (VLayout) for the handling and buttons
         
+        #add the right colmun (VLayout) for the handling and buttons
         self.right_layout = QVBoxLayout()
         right_widget = QWidget()  # Widget to hold the right column layout
         right_widget.setStyleSheet("background-color: lightgrey;")
@@ -57,47 +53,46 @@ class Window(QMainWindow):
         self.render_button = QPushButton("Render")
         self.render_button.setFixedSize(100, 50)
         self.render_button.setStyleSheet("background-color: lightblue; border: 1px solid black; border-radius: 5px;")
-        self.render_button.clicked.connect(self.render)
+        self.render_button.clicked.connect(self._render)
         self.right_layout.addWidget(self.render_button)
 
         self.render_time = QLabel("")
         self.right_layout.addWidget(self.render_time)
 
-        self.render()
 
 
-    def load_image(self):
+        #create Renderer and render first image
+        self.renderer = Renderer( 1080, 800)
+        self.img_array = self.renderer.Render()
+        self._render()
+
+        #frame calls 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._update)
+        self.timer.start(16)
+
+
+    def _update(self) -> None:
+        time_to_render = self._render()
+        self.render_time.setText(str("{:.2f}".format(time_to_render)) + "ms")
+
+    def _set_image_to_screen(self):
         qimage = QImage(self.img_array.data, 1080, 800, QImage.Format_ARGB32)
         pixmap = QPixmap.fromImage(qimage)
         self.imgContainer.setPixmap(pixmap)
         self.imgContainer.resize(pixmap.width(), pixmap.height())
         #self.resize(max(self.width(), pixmap.width()), max(self.height(), pixmap.height()))
 
-    def render(self):
+    def _render(self) -> float:
         begin = time.time()
         self.img_array = self.renderer.Render()
-        self.load_image()
-        elapsed_in_ms = (time.time() - begin)*1000
-        print(elapsed_in_ms, "ms elapsed for rendering to screen")
-    
-class Coupler:
-    def __init__(self, render_executable_path, img_path) -> None:
-       self.exc = render_executable_path
-       self.img_path = img_path 
-    
-    def render(self):
-        subprocess.call([self.exc, self.img_path])
-        return 0.0
-
-
-
+        self._set_image_to_screen()
+        return (time.time() - begin)*1000
 
 
 if __name__ == "__main__":
-    def main():
-        app = QApplication([])
-        coupler = Coupler("./build/render", "resources/image.png")
-        window = Window(coupler)
-        window.show()
-        sys.exit(app.exec())
-    main()
+    app = QApplication([])
+    window = Window()
+    window.show()
+    sys.exit(app.exec())
+

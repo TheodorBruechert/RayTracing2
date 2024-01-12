@@ -9,5 +9,6 @@ private:
 public:
     glm::vec3 getCamera() const { return m_camera; }
     glm::vec3 getLightSource() const { return m_lightSource; }
-    Scene(const glm::vec3 camera, const glm::vec3 lightSource) : m_camera(camera), m_lightSource(lightSource) {}
+    void moveCamera(const glm::vec3& direction) {m_camera += direction;}
+    Scene(const glm::vec3& camera, const glm::vec3& lightSource) : m_camera(camera), m_lightSource(lightSource) {}
 };
