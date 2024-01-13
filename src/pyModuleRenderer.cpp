@@ -14,6 +14,7 @@ PYBIND11_MODULE(rendererModule, m) {
 
     py::class_<Renderer>(m, "Renderer")
         .def(py::init< std::size_t, std::size_t>())
-        .def("Render", &Renderer::Render);
+        .def("render", &Renderer::Render)
+        .def("moveCamera", &Renderer::py_moveCamera);
 
 }

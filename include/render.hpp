@@ -28,13 +28,18 @@ private:
     Scene m_scene;
     Sphere m_sphere;
 
+   
+    
     //returns a color in RGBA
     uint32_t PerPixel(const std::size_t& x, const std::size_t& y);
     uint32_t ConvertFloatRGBAToARGB(const glm::vec4& color);
 
 public:
-    Renderer( std::size_t width, std::size_t height);
+    Renderer(std::size_t width, std::size_t height);
     ~Renderer();
+
+    void py_moveCamera(const py::array_t<float>& direction);
+    void moveCamera(const glm::vec3& direction);
 
     py::array_t<uint32_t> Render();
 };
