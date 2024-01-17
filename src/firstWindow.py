@@ -81,7 +81,9 @@ class Window(QMainWindow):
         self._cameraMovementSpeed: float = 8.0
 
         #create Renderer and render first image
-        self.renderer = Renderer( 1080, 1080)
+        self.viewPortWidth = 1800
+        self.viewPortHeight = 1000
+        self.renderer = Renderer( self.viewPortWidth, self.viewPortHeight)
         self.img_array = None
         self._render()
 
@@ -100,7 +102,7 @@ class Window(QMainWindow):
     
 
     def _set_image_to_screen(self):
-        qimage = QImage(self.img_array.data, 1080, 1080, QImage.Format_ARGB32)
+        qimage = QImage(self.img_array.data, self.viewPortWidth, self.viewPortHeight, QImage.Format_ARGB32)
         pixmap = QPixmap.fromImage(qimage)
         self.imgContainer.setPixmap(pixmap)
         self.imgContainer.resize(pixmap.width(), pixmap.height())

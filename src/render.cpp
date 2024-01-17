@@ -4,10 +4,12 @@
 #include "pybindCasts.hpp"
 #include <cstdint>
 #include <png.h>
-
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
 
 Renderer::Renderer( std::size_t width, std::size_t height)
-    : m_imgData(new uint32_t[width*height]), m_aspectRatio(width / static_cast<float>(height)), m_width(width), m_height(height), m_scene(glm::vec3(0, -2.0, -0.8), glm::vec3(1.0, 1.0, 1.0)), m_sphere(0.5) {}
+    : m_imgData(new uint32_t[width*height]), m_aspectRatio(width / static_cast<float>(height)), m_width(width), m_height(height), m_scene(glm::vec3(0, -2.0, -3.0), glm::vec3(1.0, 1.0, 1.0)), m_sphere(0.5) {}
 
 Renderer::~Renderer() {
     delete[] m_imgData;
@@ -27,23 +29,27 @@ py::array_t<uint32_t> Renderer::Render() {
 
 uint32_t Renderer::PerPixel(const std::size_t& x, const std::size_t& y) {
 //default color:
-    glm::vec4 pixelColor(0.0f, 0.0f, 0.0f, 1.0f);
+   
 
-    glm::vec3 ray = glm::vec3(m_aspectRatio * ((x / (float)m_width) * 2.0f - 1.0f), (y / (float)m_height) * 2.0f - 1.0f, 1.0f);
+    glm::vec4 pixelColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::vec3 ray = glm::vec3(m_aspectRatio * ((x/ (float)m_width) * 2.0f - 1.0f), (y/ (float)m_height) * 2.0f - 1.0f, 1.0f);
+    normalize(ray);
     //t0 < t1 therefore, the hit point of the ray is at cameraPosition + t0 * ray
 
     float t0, t1;
     if (m_sphere.CheckCollision(m_scene.getCamera(), ray, t0, t1)) {
         pixelColor = { 1.0f, 0.0, 0.0f, 1.0f };
         glm::vec3 visualPointOnSphere = m_scene.getCamera() + t0 * ray;
+
         glm::vec3 normal = visualPointOnSphere - m_sphere.GetCenter();
         glm::vec3 lightDirection = m_scene.getLightDirection();
-        //normalize(normal);
+        normalize(normal);
         float lightFactor = clip(glm::dot(-lightDirection, normal), 0.0f);
         for(int i = 0; i < 3; i++) {
             pixelColor[i] *= lightFactor;
         }
         pixelColor = glm::clamp(pixelColor, glm::vec4{0.0f}, glm::vec4{1.0f});
+       
     }
 
     return ConvertFloatRGBAToARGB(pixelColor);
