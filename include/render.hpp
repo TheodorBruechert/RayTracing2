@@ -25,7 +25,7 @@ private:
     std::size_t m_width;
     std::size_t m_height;
 
-    Scene m_scene;
+    std::unique_ptr<Scene> m_scene;
     Sphere m_sphere;
 
    

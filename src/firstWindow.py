@@ -81,8 +81,8 @@ class Window(QMainWindow):
         self._cameraMovementSpeed: float = 8.0
 
         #create Renderer and render first image
-        self.viewPortWidth = 1800
-        self.viewPortHeight = 1000
+        self.viewPortWidth = 1500
+        self.viewPortHeight = 800
         self.renderer = Renderer( self.viewPortWidth, self.viewPortHeight)
         self.img_array = None
         self._render()
